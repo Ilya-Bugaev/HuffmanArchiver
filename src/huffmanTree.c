@@ -188,6 +188,7 @@ struct CodeTable {
     HuffmanCode codes[256];
 };
 
+// NOLINTBEGIN(misc-no-recursion)
 static void collectCodes(const Node* node, HuffmanCode* codes, uint8_t* path, uint16_t depth, bool* success)
 {
     if (!*success) {
@@ -212,6 +213,7 @@ static void collectCodes(const Node* node, HuffmanCode* codes, uint8_t* path, ui
     path[depth] = 1;
     collectCodes(node->right, codes, path, (uint16_t)(depth + 1), success);
 }
+// NOLINTEND(misc-no-recursion)
 
 CodeTable* huffmanBuildCodeTable(const Node* root)
 {
