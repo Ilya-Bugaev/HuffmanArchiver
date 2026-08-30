@@ -47,6 +47,7 @@ Node* createInternal(Node* left, Node* right)
     return node;
 }
 
+// NOLINTBEGIN(misc-no-recursion)
 void freeNode(Node* node)
 {
     if (!node) {
@@ -58,6 +59,7 @@ void freeNode(Node* node)
     }
     free(node);
 }
+// NOLINTEND(misc-no-recursion)
 
 bool isLeaf(const Node* node)
 {
@@ -139,9 +141,7 @@ Node* huffmanBuildTree(const FrequencyTable frequencies)
 
     if (distinctSymbols == 1) {
         /* Вырожденный случай: единственный уникальный байт во входных данных.
-        Слияние не требуется — дерево состоит из одного узла (самого листа).
-        Обычный обход не даёт для него кода; явная фиксация 1-битного кода
-        для этого случая происходит в huffmanBuildCodeTable. */
+        Слияние не требуется - дерево состоит из одного узла*/
         Node* only = pqPop(queue);
         pqFree(queue);
         return only;
@@ -176,10 +176,7 @@ void huffmanFreeTree(Node* root)
 
 // --- Генерация таблицы кодов ---
 
-/* Максимальная длина кода Хаффмана, которую мы готовы обработать.
-Для алфавита из 256 символов этого с большим запасом достаточно на практике
-(в вырожденном фибоначчиевом случае теоретический предел — 255 бит).
-Это внутренний предел реализации, наружу через huffmanTree.h не выставляется. */
+// Максимальная длина кода Хаффмана, которую мы готовы обработать
 #define HUFFMAN_MAX_CODE_LENGTH 256
 
 typedef struct {
@@ -268,6 +265,7 @@ int getCodeBit(const CodeTable* table, uint8_t symbol, uint16_t index)
 
 // --- Сериализация дерева ---
 
+// NOLINTBEGIN(misc-no-recursion)
 bool huffmanWriteTree(const Node* root, BitWriter* writer)
 {
     if (!root || !writer) {
@@ -291,7 +289,9 @@ bool huffmanWriteTree(const Node* root, BitWriter* writer)
     }
     return huffmanWriteTree(root->left, writer) && huffmanWriteTree(root->right, writer);
 }
+// NOLINTEND(misc-no-recursion)
 
+// NOLINTBEGIN(misc-no-recursion)
 Node* huffmanReadTree(BitReader* reader)
 {
     if (!reader) {
@@ -332,3 +332,4 @@ Node* huffmanReadTree(BitReader* reader)
     }
     return node;
 }
+// NOLINTEND(misc-no-recursion)
