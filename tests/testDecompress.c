@@ -195,6 +195,19 @@ static void testRoundtripRepeatedBytes(void)
     cleanup();
 }
 
+// Входной и выходной пути совпадают: архив не затирается до конца разжатия
+static void testSamePath(void)
+{
+    cleanup();
+    const char* text = "same path decompress should restore the original bytes";
+    createFile(IN_PATH, text, strlen(text));
+    assert(compressFile(IN_PATH, ARCHIVE_PATH) == true);
+
+    assert(decompressFile(ARCHIVE_PATH, ARCHIVE_PATH) == true);
+    assert(filesEqual(IN_PATH, ARCHIVE_PATH));
+    cleanup();
+}
+
 // Выходной путь в несуществующей директории
 static void testOutputDirectoryDoesNotExist(void)
 {
@@ -215,6 +228,7 @@ int main(void)
     testTruncatedData();
     testRoundtripText();
     testRoundtripRepeatedBytes();
+    testSamePath();
     testOutputDirectoryDoesNotExist();
     printf("All decompress tests passed.\n");
     return 0;

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define DECOMPRESS_BUFFER_SIZE 65536
 
@@ -60,7 +61,21 @@ bool decompressFile(const char* inputPath, const char* outputPath)
         return false;
     }
 
-    FILE* outFile = fopen(outputPath, "wb");
+    bool samePath = (inputPath == outputPath || strcmp(inputPath, outputPath) == 0);
+    const char* actualOutputPath = outputPath;
+    char tempOutputPath[4096];
+
+    if (samePath) {
+        int written = snprintf(tempOutputPath, sizeof(tempOutputPath), "%s.hufftmp", outputPath);
+        if (written < 0 || (size_t)written >= sizeof(tempOutputPath)) {
+            fclose(inFile);
+            return false;
+        }
+        actualOutputPath = tempOutputPath;
+        remove(actualOutputPath);
+    }
+
+    FILE* outFile = fopen(actualOutputPath, "wb");
     if (!outFile) {
         fclose(inFile);
         return false;
@@ -68,7 +83,14 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
     if (originalSize == 0) {
         fclose(inFile);
-        fclose(outFile);
+        if (fclose(outFile) != 0) {
+            remove(actualOutputPath);
+            return false;
+        }
+        if (samePath && rename(actualOutputPath, outputPath) != 0) {
+            remove(actualOutputPath);
+            return false;
+        }
         return true;
     }
 
@@ -77,7 +99,7 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
     Node* root = huffmanReadTree(&reader);
     if (!root) {
-        return fail(NULL, NULL, inFile, outFile, outputPath);
+        return fail(NULL, NULL, inFile, outFile, actualOutputPath);
     }
 
     size_t bufferSize = DECOMPRESS_BUFFER_SIZE;
@@ -86,7 +108,7 @@ bool decompressFile(const char* inputPath, const char* outputPath)
     }
     uint8_t* buffer = malloc(bufferSize);
     if (!buffer) {
-        return fail(root, NULL, inFile, outFile, outputPath);
+        return fail(root, NULL, inFile, outFile, actualOutputPath);
     }
 
     Node* current = root;
@@ -96,11 +118,11 @@ bool decompressFile(const char* inputPath, const char* outputPath)
         while (!isLeaf(current)) {
             int bit = bitReaderReadBit(&reader);
             if (bit < 0) {
-                return fail(root, buffer, inFile, outFile, outputPath);
+                return fail(root, buffer, inFile, outFile, actualOutputPath);
             }
             current = (bit == 0) ? getLeft(current) : getRight(current);
             if (!current) {
-                return fail(root, buffer, inFile, outFile, outputPath);
+                return fail(root, buffer, inFile, outFile, actualOutputPath);
             }
         }
 
@@ -108,7 +130,7 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
         if (bufferPosition == bufferSize) {
             if (fwrite(buffer, 1, bufferPosition, outFile) != bufferPosition) {
-                return fail(root, buffer, inFile, outFile, outputPath);
+                return fail(root, buffer, inFile, outFile, actualOutputPath);
             }
             bufferPosition = 0;
         }
@@ -118,13 +140,20 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
     if (bufferPosition > 0) {
         if (fwrite(buffer, 1, bufferPosition, outFile) != bufferPosition) {
-            return fail(root, buffer, inFile, outFile, outputPath);
+            return fail(root, buffer, inFile, outFile, actualOutputPath);
         }
     }
 
     free(buffer);
     huffmanFreeTree(root);
     fclose(inFile);
-    fclose(outFile);
+    if (fclose(outFile) != 0) {
+        remove(actualOutputPath);
+        return false;
+    }
+    if (samePath && rename(actualOutputPath, outputPath) != 0) {
+        remove(actualOutputPath);
+        return false;
+    }
     return true;
 }

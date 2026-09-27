@@ -86,11 +86,6 @@ size_t getFrequency(const Node* node)
     return node->frequency;
 }
 
-void incrementFrequency(Node* node)
-{
-    node->frequency++;
-}
-
 size_t getHeapIndex(const Node* node)
 {
     return node->heapIndex;

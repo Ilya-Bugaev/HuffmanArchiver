@@ -20,7 +20,3 @@ bool pqPush(PriorityQueue* queue, Node* node);
 Node* pqPop(PriorityQueue* queue);
 
 size_t pqSize(const PriorityQueue* queue);
-
-/* Увеличивает частоту уже находящегося в очереди узла на 1 и восстанавливает
-инвариант кучи. Возвращает false, если узел не принадлежит этой очереди. */
-bool pqIncreaseFrequency(PriorityQueue* queue, Node* node);

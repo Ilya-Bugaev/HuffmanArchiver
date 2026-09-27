@@ -120,17 +120,3 @@ size_t pqSize(const PriorityQueue* queue)
 {
     return queue ? queue->size : 0;
 }
-
-bool pqIncreaseFrequency(PriorityQueue* queue, Node* node)
-{
-    if (!queue || !node) {
-        return false;
-    }
-    size_t index = getHeapIndex(node);
-    if (index >= queue->size || queue->items[index] != node) {
-        return false;
-    }
-    incrementFrequency(node);
-    siftDown(queue, index);
-    return true;
-}

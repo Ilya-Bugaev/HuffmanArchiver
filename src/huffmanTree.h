@@ -36,8 +36,6 @@ Node* getRight(const Node* node);
 
 // Частота узла (для листа - исходная частота символа, для внутреннего - сумма потомков)
 size_t getFrequency(const Node* node);
-// Увеличивает частоту узла на 1
-void incrementFrequency(Node* node);
 
 // Индекс узла в массиве кучи приоритетной очереди; используется только PriorityQueue
 size_t getHeapIndex(const Node* node);

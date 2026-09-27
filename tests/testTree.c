@@ -97,17 +97,6 @@ static void testFreeNodeNull(void)
     freeNode(NULL);
 }
 
-static void testIncrementFrequency(void)
-{
-    Node* leaf = createLeaf('A', 5);
-    assert(getFrequency(leaf) == 5);
-    incrementFrequency(leaf);
-    assert(getFrequency(leaf) == 6);
-    incrementFrequency(leaf);
-    assert(getFrequency(leaf) == 7);
-    freeNode(leaf);
-}
-
 static void testHeapIndex(void)
 {
     Node* leaf = createLeaf('A', 1);
@@ -497,7 +486,6 @@ int main(void)
     testCreateInternal();
     testCreateInternalWithNull();
     testFreeNodeNull();
-    testIncrementFrequency();
     testHeapIndex();
 
     // Построение дерева

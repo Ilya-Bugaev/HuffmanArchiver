@@ -174,51 +174,6 @@ static void testSameFrequency(void)
     pqFree(pq);
 }
 
-// Увеличение частоты узла в очереди меняет порядок извлечения
-static void testIncreaseFrequency(void)
-{
-    PriorityQueue* pq = pqCreate(4);
-
-    Node* a = createLeaf('a', 1);
-    Node* b = createLeaf('b', 2);
-    Node* c = createLeaf('c', 3);
-
-    assert(pqPush(pq, a));
-    assert(pqPush(pq, b));
-    assert(pqPush(pq, c));
-
-    assert(pqIncreaseFrequency(pq, a));
-    assert(pqIncreaseFrequency(pq, a));
-    assert(pqIncreaseFrequency(pq, a));
-    assert(getFrequency(a) == 4);
-
-    assert(getFrequency(pqPop(pq)) == 2);
-    assert(getFrequency(pqPop(pq)) == 3);
-    assert(getFrequency(pqPop(pq)) == 4);
-
-    freeNode(a);
-    freeNode(b);
-    freeNode(c);
-    pqFree(pq);
-}
-
-// Увеличение частоты узла, не принадлежащего очереди, возвращает false
-static void testIncreaseFrequencyNotInQueue(void)
-{
-    PriorityQueue* pq = pqCreate(4);
-    Node* node = createLeaf('a', 5);
-
-    assert(pqIncreaseFrequency(pq, node) == false);
-
-    assert(pqPush(pq, node));
-    Node* popped = pqPop(pq);
-    assert(popped == node);
-    assert(pqIncreaseFrequency(pq, node) == false);
-
-    freeNode(node);
-    pqFree(pq);
-}
-
 // heapIndex устанавливается при вставке и сбрасывается при извлечении
 static void testHeapIndex(void)
 {
@@ -306,8 +261,6 @@ int main(void)
     testReallocation();
     testInvalidArgs();
     testSameFrequency();
-    testIncreaseFrequency();
-    testIncreaseFrequencyNotInQueue();
     testHeapIndex();
     testInterleaved();
     testManyElements();
