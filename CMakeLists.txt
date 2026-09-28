@@ -23,6 +23,10 @@ target_include_directories(huffman_lib PUBLIC src)
 add_executable(huffman src/main.c)
 target_link_libraries(huffman PRIVATE huffman_lib)
 
+#Замер времени сжатия и разжатия
+add_executable(benchmark experiments/benchmark.c)
+target_link_libraries(benchmark PRIVATE huffman_lib)
+
 #Тесты
 enable_testing()
 
