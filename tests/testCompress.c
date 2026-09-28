@@ -104,6 +104,27 @@ static void testSamePath(void)
     cleanup();
 }
 
+/* Разные строки одного и того же файла: ./path и path. */
+static void testSameFileDifferentSpelling(void)
+{
+    cleanup();
+    const char* text = "one file, two spellings";
+    createFile(IN_PATH, text, strlen(text));
+    assert(compressFile(IN_PATH, "/tmp/./huff_test_in") == true);
+    assert(getFileSize(IN_PATH) > (long)strlen(text));
+    cleanup();
+}
+
+/* Ошибка до записи не должна затирать уже существующий файл назначения. */
+static void testFailureKeepsDestination(void)
+{
+    cleanup();
+    createFile(OUT_PATH, "precious", 8);
+    assert(compressFile("/tmp/this_file_does_not_exist_123", OUT_PATH) == false);
+    assert(getFileSize(OUT_PATH) == 8);
+    cleanup();
+}
+
 int main(void)
 {
     testNullArgs();
@@ -112,6 +133,8 @@ int main(void)
     testNormalText();
     testRepeatedBytes();
     testSamePath();
+    testSameFileDifferentSpelling();
+    testFailureKeepsDestination();
 
     printf("All compress tests passed.\n");
     return 0;

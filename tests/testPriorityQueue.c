@@ -174,25 +174,6 @@ static void testSameFrequency(void)
     pqFree(pq);
 }
 
-// heapIndex устанавливается при вставке и сбрасывается при извлечении
-static void testHeapIndex(void)
-{
-    PriorityQueue* pq = pqCreate(4);
-    Node* node = createLeaf('a', 5);
-
-    assert(getHeapIndex(node) == (size_t)-1);
-
-    assert(pqPush(pq, node));
-    assert(getHeapIndex(node) < pqSize(pq));
-
-    Node* popped = pqPop(pq);
-    assert(popped == node);
-    assert(getHeapIndex(node) == (size_t)-1);
-
-    freeNode(node);
-    pqFree(pq);
-}
-
 // Чередование вставок и извлечений
 static void testInterleaved(void)
 {
@@ -261,7 +242,6 @@ int main(void)
     testReallocation();
     testInvalidArgs();
     testSameFrequency();
-    testHeapIndex();
     testInterleaved();
     testManyElements();
     printf("All priorityQueue tests passed.\n");

@@ -18,8 +18,9 @@ typedef struct CodeTable CodeTable;
 Node* createLeaf(uint8_t symbol, size_t frequency);
 
 /* Создаёт внутренний узел, объединяющий left и right; частота = сумма частот
-потомков. NULL при ошибке malloc или если left/right равны NULL (left и right
-в этом случае не освобождаются - вызывающий код отвечает за них сам). */
+потомков. NULL при ошибке malloc, переполнении суммы частот или если left/right
+равны NULL (left и right в этом случае не освобождаются - вызывающий код
+отвечает за них сам). */
 Node* createInternal(Node* left, Node* right);
 
 // Рекурсивно освобождает узел и всех его потомков. NULL-указатель безопасен.
@@ -36,10 +37,6 @@ Node* getRight(const Node* node);
 
 // Частота узла (для листа - исходная частота символа, для внутреннего - сумма потомков)
 size_t getFrequency(const Node* node);
-
-// Индекс узла в массиве кучи приоритетной очереди; используется только PriorityQueue
-size_t getHeapIndex(const Node* node);
-void setHeapIndex(Node* node, size_t index);
 
 // ---- Построение дерева и таблицы кодов ----
 

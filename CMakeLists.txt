@@ -16,6 +16,7 @@ add_library(huffman_lib
     src/bitStream.c
     src/compress.c
     src/decompress.c
+    src/tempOutput.c
 )
 target_include_directories(huffman_lib PUBLIC src)
 

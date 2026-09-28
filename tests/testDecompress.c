@@ -1,3 +1,4 @@
+#include "bitStream.h"
 #include "compress.h"
 #include "decompress.h"
 
@@ -208,6 +209,70 @@ static void testSamePath(void)
     cleanup();
 }
 
+/* Архив и результат — один файл, записанный двумя разными строками пути. */
+static void testSameFileDifferentSpelling(void)
+{
+    cleanup();
+    const char* text = "decompress one inode under two names";
+    createFile(IN_PATH, text, strlen(text));
+    assert(compressFile(IN_PATH, ARCHIVE_PATH) == true);
+    assert(decompressFile(ARCHIVE_PATH, "/tmp/./huff_test_archive") == true);
+
+    FILE* file = fopen(ARCHIVE_PATH, "rb");
+    assert(file != NULL);
+    char buffer[64];
+    size_t count = fread(buffer, 1, sizeof(buffer), file);
+    fclose(file);
+    assert(count == strlen(text));
+    assert(memcmp(buffer, text, count) == 0);
+    cleanup();
+}
+
+/* Повреждённый архив не должен уничтожать уже существующий файл назначения. */
+static void testFailureKeepsDestination(void)
+{
+    cleanup();
+    uint8_t header[8] = { 1, 0, 0, 0, 0, 0, 0, 0 };
+    createFile(ARCHIVE_PATH, header, sizeof(header));
+    createFile(OUT_PATH, "precious", 8);
+    assert(decompressFile(ARCHIVE_PATH, OUT_PATH) == false);
+
+    FILE* file = fopen(OUT_PATH, "rb");
+    assert(file != NULL);
+    char buffer[16];
+    size_t count = fread(buffer, 1, sizeof(buffer), file);
+    fclose(file);
+    assert(count == 8);
+    assert(memcmp(buffer, "precious", 8) == 0);
+    cleanup();
+}
+
+/* Лист без битов данных: большой размер в заголовке не должен раздувать выход. */
+static void testLeafWithoutPayload(void)
+{
+    cleanup();
+    FILE* file = fopen(ARCHIVE_PATH, "wb");
+    assert(file != NULL);
+    uint64_t declaredSize = 1000;
+    for (int i = 0; i < 8; i++) {
+        assert(fputc((int)((declaredSize >> (8 * i)) & 0xFFu), file) != EOF);
+    }
+
+    BitWriter writer;
+    bitWriterInit(&writer, file);
+    assert(bitWriterWriteBit(&writer, 1) == 0);
+    for (int i = 7; i >= 0; i--) {
+        assert(bitWriterWriteBit(&writer, ('A' >> i) & 1) == 0);
+    }
+    assert(bitWriterFlush(&writer) == 0);
+    assert(fclose(file) == 0);
+
+    createFile(OUT_PATH, "precious", 8);
+    assert(decompressFile(ARCHIVE_PATH, OUT_PATH) == false);
+    assert(getFileSize(OUT_PATH) == 8);
+    cleanup();
+}
+
 // Выходной путь в несуществующей директории
 static void testOutputDirectoryDoesNotExist(void)
 {
@@ -229,6 +294,9 @@ int main(void)
     testRoundtripText();
     testRoundtripRepeatedBytes();
     testSamePath();
+    testSameFileDifferentSpelling();
+    testFailureKeepsDestination();
+    testLeafWithoutPayload();
     testOutputDirectoryDoesNotExist();
     printf("All decompress tests passed.\n");
     return 0;

@@ -9,7 +9,6 @@ struct Node {
     size_t frequency;
     Node* left;
     Node* right;
-    size_t heapIndex; // используется только PriorityQueue
 };
 
 // --- Узлы дерева ---
@@ -25,13 +24,12 @@ Node* createLeaf(uint8_t symbol, size_t frequency)
     node->frequency = frequency;
     node->left = NULL;
     node->right = NULL;
-    node->heapIndex = (size_t)-1;
     return node;
 }
 
 Node* createInternal(Node* left, Node* right)
 {
-    if (!left || !right) {
+    if (!left || !right || left->frequency > SIZE_MAX - right->frequency) {
         return NULL;
     }
     Node* node = malloc(sizeof(Node));
@@ -43,7 +41,6 @@ Node* createInternal(Node* left, Node* right)
     node->frequency = left->frequency + right->frequency;
     node->left = left;
     node->right = right;
-    node->heapIndex = (size_t)-1;
     return node;
 }
 
@@ -84,16 +81,6 @@ Node* getRight(const Node* node)
 size_t getFrequency(const Node* node)
 {
     return node->frequency;
-}
-
-size_t getHeapIndex(const Node* node)
-{
-    return node->heapIndex;
-}
-
-void setHeapIndex(Node* node, size_t index)
-{
-    node->heapIndex = index;
 }
 
 // --- Построение дерева ---
@@ -288,10 +275,12 @@ bool huffmanWriteTree(const Node* root, BitWriter* writer)
 }
 // NOLINTEND(misc-no-recursion)
 
+#define HUFFMAN_MAX_TREE_DEPTH 255
+
 // NOLINTBEGIN(misc-no-recursion)
-Node* huffmanReadTree(BitReader* reader)
+static Node* readTreeAt(BitReader* reader, int depth)
 {
-    if (!reader) {
+    if (depth > HUFFMAN_MAX_TREE_DEPTH) {
         return NULL;
     }
 
@@ -312,11 +301,11 @@ Node* huffmanReadTree(BitReader* reader)
         return createLeaf(symbol, 0);
     }
 
-    Node* left = huffmanReadTree(reader);
+    Node* left = readTreeAt(reader, depth + 1);
     if (!left) {
         return NULL;
     }
-    Node* right = huffmanReadTree(reader);
+    Node* right = readTreeAt(reader, depth + 1);
     if (!right) {
         freeNode(left);
         return NULL;
@@ -330,3 +319,11 @@ Node* huffmanReadTree(BitReader* reader)
     return node;
 }
 // NOLINTEND(misc-no-recursion)
+
+Node* huffmanReadTree(BitReader* reader)
+{
+    if (!reader) {
+        return NULL;
+    }
+    return readTreeAt(reader, 0);
+}

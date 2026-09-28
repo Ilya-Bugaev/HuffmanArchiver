@@ -63,7 +63,6 @@ static void testCreateLeaf(void)
     assert(getFrequency(leaf) == 42);
     assert(getLeft(leaf) == NULL);
     assert(getRight(leaf) == NULL);
-    assert(getHeapIndex(leaf) == (size_t)-1);
     freeNode(leaf);
 }
 
@@ -78,7 +77,6 @@ static void testCreateInternal(void)
     assert(getFrequency(parent) == 10);
     assert(getLeft(parent) == left);
     assert(getRight(parent) == right);
-    assert(getHeapIndex(parent) == (size_t)-1);
 
     freeNode(parent);
 }
@@ -97,15 +95,15 @@ static void testFreeNodeNull(void)
     freeNode(NULL);
 }
 
-static void testHeapIndex(void)
+static void testCreateInternalFrequencyOverflow(void)
 {
-    Node* leaf = createLeaf('A', 1);
-    assert(getHeapIndex(leaf) == (size_t)-1);
-    setHeapIndex(leaf, 7);
-    assert(getHeapIndex(leaf) == 7);
-    setHeapIndex(leaf, (size_t)-1);
-    assert(getHeapIndex(leaf) == (size_t)-1);
-    freeNode(leaf);
+    Node* left = createLeaf('a', SIZE_MAX);
+    Node* right = createLeaf('b', 1);
+    assert(left != NULL);
+    assert(right != NULL);
+    assert(createInternal(left, right) == NULL);
+    freeNode(left);
+    freeNode(right);
 }
 
 // ---Тесты построения дерева---
@@ -479,14 +477,34 @@ static void testSerializeAllByteValues(void)
     fclose(file);
 }
 
+// Поток из одних внутренних узлов глубже допустимого дерева не должен раздувать стек.
+static void testReadTreeTooDeep(void)
+{
+    FILE* file = tmpfile();
+    assert(file != NULL);
+
+    BitWriter writer;
+    bitWriterInit(&writer, file);
+    for (int i = 0; i < 300; i++) {
+        assert(bitWriterWriteBit(&writer, 0) == 0);
+    }
+    assert(bitWriterFlush(&writer) == 0);
+    assert(fseek(file, 0, SEEK_SET) == 0);
+
+    BitReader reader;
+    bitReaderInit(&reader, file);
+    assert(huffmanReadTree(&reader) == NULL);
+    fclose(file);
+}
+
 int main(void)
 {
     // Узлы
     testCreateLeaf();
     testCreateInternal();
     testCreateInternalWithNull();
+    testCreateInternalFrequencyOverflow();
     testFreeNodeNull();
-    testHeapIndex();
 
     // Построение дерева
     testBuildTreeEmptyFrequencies();
@@ -512,6 +530,7 @@ int main(void)
     testSerializeClassicExample();
     testSerializeDeserializeCodes();
     testSerializeAllByteValues();
+    testReadTreeTooDeep();
 
     printf("All huffmanTree tests passed.\n");
     return 0;

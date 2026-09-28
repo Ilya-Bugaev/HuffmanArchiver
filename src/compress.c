@@ -1,12 +1,12 @@
 #include "compress.h"
 #include "bitStream.h"
 #include "huffmanTree.h"
+#include "tempOutput.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define COMPRESS_BUFFER_SIZE 65536
 
@@ -45,6 +45,9 @@ static bool countFrequencies(FILE* file, FrequencyTable freq, uint64_t* outSize)
             totalSize += (uint64_t)bytesRead;
 
             for (size_t i = 0; i < bytesRead; i++) {
+                if (freq[buffer[i]] == SIZE_MAX) {
+                    return false;
+                }
                 freq[buffer[i]]++;
             }
         }
@@ -102,8 +105,6 @@ bool compressFile(const char* inputPath, const char* outputPath)
         return false;
     }
 
-    bool samePath = (inputPath == outputPath || strcmp(inputPath, outputPath) == 0);
-
     FILE* inFile = fopen(inputPath, "rb");
     if (!inFile) {
         return false;
@@ -122,26 +123,14 @@ bool compressFile(const char* inputPath, const char* outputPath)
         return false;
     }
 
-    const char* actualOutputPath = outputPath;
-    char tempOutputPath[4096];
-
-    if (samePath) {
-        int written = snprintf(tempOutputPath, sizeof(tempOutputPath), "%s.hufftmp", outputPath);
-        if (written < 0 || (size_t)written >= sizeof(tempOutputPath)) {
-            fclose(inFile);
-            return false;
-        }
-        actualOutputPath = tempOutputPath;
-        remove(actualOutputPath);
+    char tempPath[4096];
+    FILE* outFile = NULL;
+    if (!createTempOutput(outputPath, tempPath, sizeof(tempPath), &outFile)) {
+        fclose(inFile);
+        return false;
     }
 
     if (dataSize == 0) {
-        FILE* outFile = fopen(actualOutputPath, "wb");
-        if (!outFile) {
-            fclose(inFile);
-            return false;
-        }
-
         bool success = writeUint64(outFile, 0);
 
         if (fclose(outFile) != 0) {
@@ -150,18 +139,16 @@ bool compressFile(const char* inputPath, const char* outputPath)
         fclose(inFile);
 
         if (!success) {
-            remove(actualOutputPath);
+            discardTempOutput(tempPath);
             return false;
         }
-        if (samePath && rename(actualOutputPath, outputPath) != 0) {
-            remove(actualOutputPath);
-            return false;
-        }
-        return true;
+        return commitTempOutput(tempPath, outputPath);
     }
 
     Node* root = huffmanBuildTree(freq);
     if (!root) {
+        fclose(outFile);
+        discardTempOutput(tempPath);
         fclose(inFile);
         return false;
     }
@@ -169,14 +156,8 @@ bool compressFile(const char* inputPath, const char* outputPath)
     CodeTable* codes = huffmanBuildCodeTable(root);
     if (!codes) {
         huffmanFreeTree(root);
-        fclose(inFile);
-        return false;
-    }
-
-    FILE* outFile = fopen(actualOutputPath, "wb");
-    if (!outFile) {
-        huffmanFreeCodeTable(codes);
-        huffmanFreeTree(root);
+        fclose(outFile);
+        discardTempOutput(tempPath);
         fclose(inFile);
         return false;
     }
@@ -213,14 +194,9 @@ bool compressFile(const char* inputPath, const char* outputPath)
     huffmanFreeTree(root);
 
     if (!success) {
-        remove(actualOutputPath);
+        discardTempOutput(tempPath);
         return false;
     }
 
-    if (samePath && rename(actualOutputPath, outputPath) != 0) {
-        remove(actualOutputPath);
-        return false;
-    }
-
-    return true;
+    return commitTempOutput(tempPath, outputPath);
 }

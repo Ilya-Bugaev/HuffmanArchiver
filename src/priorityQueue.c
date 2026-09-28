@@ -10,7 +10,6 @@ struct PriorityQueue {
 static void pqSetItem(PriorityQueue* queue, size_t index, Node* node)
 {
     queue->items[index] = node;
-    setHeapIndex(node, index);
 }
 
 static void pqSwap(PriorityQueue* queue, size_t i, size_t j)
@@ -112,7 +111,6 @@ Node* pqPop(PriorityQueue* queue)
         pqSetItem(queue, 0, queue->items[queue->size]);
         siftDown(queue, 0);
     }
-    setHeapIndex(min, (size_t)-1);
     return min;
 }
 
