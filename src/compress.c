@@ -82,7 +82,8 @@ static bool encodeFile(FILE* file, const CodeTable* codes, BitWriter* writer)
             for (uint16_t bit = 0; bit < length; bit++) {
                 if (bitWriterWriteBit(
                         writer,
-                        getCodeBit(codes, byte, bit)) != 0) {
+                        getCodeBit(codes, byte, bit))
+                    != 0) {
                     return false;
                 }
             }
