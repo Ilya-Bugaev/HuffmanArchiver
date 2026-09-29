@@ -9,6 +9,13 @@ set(CMAKE_C_EXTENSIONS OFF)
 #Флаги компиляции
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+#Санитайзеры (адреса, неопределённое поведение): cmake -B build -DENABLE_SANITIZERS=ON
+option(ENABLE_SANITIZERS "Собрать с AddressSanitizer и UndefinedBehaviorSanitizer" OFF)
+if(ENABLE_SANITIZERS)
+    add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
+    add_link_options(-fsanitize=address,undefined)
+endif()
+
 #Библиотека с модулями архиватора
 add_library(huffman_lib
     src/huffmanTree.c
@@ -31,7 +38,7 @@ add_executable(benchmark experiments/benchmark.c)
 target_link_libraries(benchmark PRIVATE huffman_lib)
 
 #Тесты
-enable_testing()
+include(CTest)
 
 add_executable(testTree tests/testTree.c)
 target_link_libraries(testTree PRIVATE huffman_lib)
