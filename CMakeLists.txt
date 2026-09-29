@@ -19,6 +19,8 @@ add_library(huffman_lib
     src/tempOutput.c
 )
 target_include_directories(huffman_lib PUBLIC src)
+#mkstemp, fchmod и fdopen в tempOutput.c требуют POSIX 2008 при -std=c17
+target_compile_definitions(huffman_lib PRIVATE _POSIX_C_SOURCE=200809L)
 
 #Основное приложение
 add_executable(huffman src/main.c)
