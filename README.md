@@ -1,8 +1,5 @@
 # Архиватор на базе алгоритма Хаффмана
 
-[![Build and lint](https://github.com/Ilya-Bugaev/HuffmanArchiver/actions/workflows/build-and-lint.yml/badge.svg)](https://github.com/Ilya-Bugaev/HuffmanArchiver/actions/workflows/build-and-lint.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
 Учебная практика | 1 курс, 2 семестр
 
 **Студент:** Бугаев Илья Александрович
