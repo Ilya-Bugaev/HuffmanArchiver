@@ -3,6 +3,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Максимальная длина кода Хаффмана, которую мы готовы обработать
+#define HUFFMAN_MAX_CODE_LENGTH 256
+
+typedef struct {
+    uint16_t length;
+    uint8_t bits[HUFFMAN_MAX_CODE_LENGTH];
+} HuffmanCode;
+
+struct CodeTable {
+    HuffmanCode codes[256];
+};
+
 struct Node {
     bool leaf;
     uint8_t symbol; // значим только для листьев
@@ -157,18 +169,6 @@ void huffmanFreeTree(Node* root)
 }
 
 // --- Генерация таблицы кодов ---
-
-// Максимальная длина кода Хаффмана, которую мы готовы обработать
-#define HUFFMAN_MAX_CODE_LENGTH 256
-
-typedef struct {
-    uint16_t length;
-    uint8_t bits[HUFFMAN_MAX_CODE_LENGTH];
-} HuffmanCode;
-
-struct CodeTable {
-    HuffmanCode codes[256];
-};
 
 // NOLINTBEGIN(misc-no-recursion)
 static void collectCodes(const Node* node, HuffmanCode* codes, uint8_t* path, uint16_t depth, bool* success)

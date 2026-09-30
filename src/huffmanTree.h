@@ -28,10 +28,13 @@ void freeNode(Node* node);
 
 // true, если node - лист (хранит символ), false - если внутренний узел
 bool isLeaf(const Node* node);
+
 // Символ листа; для внутреннего узла результат не определён
 uint8_t getSymbol(const Node* node);
+
 // Левый потомок внутреннего узла; для листа - NULL
 Node* getLeft(const Node* node);
+
 // Правый потомок внутреннего узла; для листа - NULL
 Node* getRight(const Node* node);
 
