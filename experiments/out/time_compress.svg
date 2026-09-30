@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560">
+<rect width="100%" height="100%" fill="white"/>
+<text x="415.0" y="32" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="18">Время сжатия и размер файла</text>
+<line x1="80" y1="490.0" x2="750" y2="490.0" stroke="#e6e6e6"/>
+<text x="72" y="494.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10⁻²</text>
+<line x1="80" y1="404.0" x2="750" y2="404.0" stroke="#e6e6e6"/>
+<text x="72" y="408.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10⁻¹</text>
+<line x1="80" y1="318.0" x2="750" y2="318.0" stroke="#e6e6e6"/>
+<text x="72" y="322.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10⁰</text>
+<line x1="80" y1="232.0" x2="750" y2="232.0" stroke="#e6e6e6"/>
+<text x="72" y="236.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10¹</text>
+<line x1="80" y1="146.0" x2="750" y2="146.0" stroke="#e6e6e6"/>
+<text x="72" y="150.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10²</text>
+<line x1="80" y1="60.0" x2="750" y2="60.0" stroke="#e6e6e6"/>
+<text x="72" y="64.0" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="12">10³</text>
+<line x1="84.3" y1="60" x2="84.3" y2="490" stroke="#f2f2f2"/>
+<text x="84.3" y="512" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="12">10⁰</text>
+<line x1="263.8" y1="60" x2="263.8" y2="490" stroke="#f2f2f2"/>
+<text x="263.8" y="512" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="12">10¹</text>
+<line x1="443.2" y1="60" x2="443.2" y2="490" stroke="#f2f2f2"/>
+<text x="443.2" y="512" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="12">10²</text>
+<line x1="622.7" y1="60" x2="622.7" y2="490" stroke="#f2f2f2"/>
+<text x="622.7" y="512" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="12">10³</text>
+<line x1="80" y1="60" x2="80" y2="490" stroke="#222"/>
+<line x1="80" y1="490" x2="750" y2="490" stroke="#222"/>
+<polyline fill="none" stroke="#1f77b4" stroke-width="2" points="84.3,424.9 263.8,366.9 443.2,286.1 624.6,199.8 750.0,139.9"/>
+<circle cx="84.3" cy="424.9" r="3.5" fill="#1f77b4"/>
+<circle cx="263.8" cy="366.9" r="3.5" fill="#1f77b4"/>
+<circle cx="443.2" cy="286.1" r="3.5" fill="#1f77b4"/>
+<circle cx="624.6" cy="199.8" r="3.5" fill="#1f77b4"/>
+<circle cx="750.0" cy="139.9" r="3.5" fill="#1f77b4"/>
+<rect x="774" y="66" width="14" height="14" fill="#1f77b4"/>
+<text x="796" y="78" font-family="DejaVu Sans, sans-serif" font-size="13">ASCII</text>
+<polyline fill="none" stroke="#ff7f0e" stroke-width="2" points="84.3,387.1 263.8,330.1 443.2,287.5 624.6,201.8 750.0,141.8"/>
+<circle cx="84.3" cy="387.1" r="3.5" fill="#ff7f0e"/>
+<circle cx="263.8" cy="330.1" r="3.5" fill="#ff7f0e"/>
+<circle cx="443.2" cy="287.5" r="3.5" fill="#ff7f0e"/>
+<circle cx="624.6" cy="201.8" r="3.5" fill="#ff7f0e"/>
+<circle cx="750.0" cy="141.8" r="3.5" fill="#ff7f0e"/>
+<rect x="774" y="88" width="14" height="14" fill="#ff7f0e"/>
+<text x="796" y="100" font-family="DejaVu Sans, sans-serif" font-size="13">UTF-8</text>
+<polyline fill="none" stroke="#2ca02c" stroke-width="2" points="84.2,366.1 263.8,331.4 443.2,283.2 624.6,197.2 750.0,137.9"/>
+<circle cx="84.2" cy="366.1" r="3.5" fill="#2ca02c"/>
+<circle cx="263.8" cy="331.4" r="3.5" fill="#2ca02c"/>
+<circle cx="443.2" cy="283.2" r="3.5" fill="#2ca02c"/>
+<circle cx="624.6" cy="197.2" r="3.5" fill="#2ca02c"/>
+<circle cx="750.0" cy="137.9" r="3.5" fill="#2ca02c"/>
+<rect x="774" y="110" width="14" height="14" fill="#2ca02c"/>
+<text x="796" y="122" font-family="DejaVu Sans, sans-serif" font-size="13">BMP</text>
+<polyline fill="none" stroke="#d62728" stroke-width="2" points="84.3,359.1 263.8,330.5 443.2,269.8 624.6,183.9 750.0,123.7"/>
+<circle cx="84.3" cy="359.1" r="3.5" fill="#d62728"/>
+<circle cx="263.8" cy="330.5" r="3.5" fill="#d62728"/>
+<circle cx="443.2" cy="269.8" r="3.5" fill="#d62728"/>
+<circle cx="624.6" cy="183.9" r="3.5" fill="#d62728"/>
+<circle cx="750.0" cy="123.7" r="3.5" fill="#d62728"/>
+<rect x="774" y="132" width="14" height="14" fill="#d62728"/>
+<text x="796" y="144" font-family="DejaVu Sans, sans-serif" font-size="13">WAV</text>
+<polyline fill="none" stroke="#9467bd" stroke-width="2" points="84.3,357.6 263.8,325.3 443.2,272.1 624.6,186.1 750.0,126.9"/>
+<circle cx="84.3" cy="357.6" r="3.5" fill="#9467bd"/>
+<circle cx="263.8" cy="325.3" r="3.5" fill="#9467bd"/>
+<circle cx="443.2" cy="272.1" r="3.5" fill="#9467bd"/>
+<circle cx="624.6" cy="186.1" r="3.5" fill="#9467bd"/>
+<circle cx="750.0" cy="126.9" r="3.5" fill="#9467bd"/>
+<rect x="774" y="154" width="14" height="14" fill="#9467bd"/>
+<text x="796" y="166" font-family="DejaVu Sans, sans-serif" font-size="13">ZIP</text>
+<polyline fill="none" stroke="#8c564b" stroke-width="2" points="80.0,358.2 262.5,328.2 444.0,270.3 624.6,184.7 749.6,124.5"/>
+<circle cx="80.0" cy="358.2" r="3.5" fill="#8c564b"/>
+<circle cx="262.5" cy="328.2" r="3.5" fill="#8c564b"/>
+<circle cx="444.0" cy="270.3" r="3.5" fill="#8c564b"/>
+<circle cx="624.6" cy="184.7" r="3.5" fill="#8c564b"/>
+<circle cx="749.6" cy="124.5" r="3.5" fill="#8c564b"/>
+<rect x="774" y="176" width="14" height="14" fill="#8c564b"/>
+<text x="796" y="188" font-family="DejaVu Sans, sans-serif" font-size="13">JPEG</text>
+<polyline fill="none" stroke="#e377c2" stroke-width="2" points="450.6,266.5 624.9,184.2 747.3,125.1"/>
+<circle cx="450.6" cy="266.5" r="3.5" fill="#e377c2"/>
+<circle cx="624.9" cy="184.2" r="3.5" fill="#e377c2"/>
+<circle cx="747.3" cy="125.1" r="3.5" fill="#e377c2"/>
+<rect x="774" y="198" width="14" height="14" fill="#e377c2"/>
+<text x="796" y="210" font-family="DejaVu Sans, sans-serif" font-size="13">MP4</text>
+<polyline fill="none" stroke="#7f7f7f" stroke-width="2" points="84.3,358.9 263.8,347.2 443.2,270.0 624.6,186.4 750.0,126.7"/>
+<circle cx="84.3" cy="358.9" r="3.5" fill="#7f7f7f"/>
+<circle cx="263.8" cy="347.2" r="3.5" fill="#7f7f7f"/>
+<circle cx="443.2" cy="270.0" r="3.5" fill="#7f7f7f"/>
+<circle cx="624.6" cy="186.4" r="3.5" fill="#7f7f7f"/>
+<circle cx="750.0" cy="126.7" r="3.5" fill="#7f7f7f"/>
+<rect x="774" y="220" width="14" height="14" fill="#7f7f7f"/>
+<text x="796" y="232" font-family="DejaVu Sans, sans-serif" font-size="13">случайные байты</text>
+<text x="18" y="275.0" transform="rotate(-90 18 275.0)" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="13">время, мс</text>
+<text x="415.0" y="544" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="13">размер файла, КБ</text></svg>
