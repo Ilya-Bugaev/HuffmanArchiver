@@ -1,10 +1,8 @@
 #include "tempOutput.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
+
+#define TEMP_NAME_ATTEMPTS 1000
 
 bool createTempOutput(const char* outputPath, char* tempPath, size_t tempPathSize, FILE** outFile)
 {
@@ -12,26 +10,20 @@ bool createTempOutput(const char* outputPath, char* tempPath, size_t tempPathSiz
         return false;
     }
 
-    int written = snprintf(tempPath, tempPathSize, "%s.XXXXXX", outputPath);
-    if (written < 0 || (size_t)written >= tempPathSize) {
-        return false;
-    }
+    for (unsigned attempt = 0; attempt < TEMP_NAME_ATTEMPTS; attempt++) {
+        int written = snprintf(tempPath, tempPathSize, "%s.tmp%u", outputPath, attempt);
+        if (written < 0 || (size_t)written >= tempPathSize) {
+            return false;
+        }
 
-    int fd = mkstemp(tempPath);
-    if (fd < 0) {
-        return false;
+        // Режим "x" (C11) не открывает уже существующий файл, поэтому чужой файл не затирается
+        FILE* file = fopen(tempPath, "wbx");
+        if (file) {
+            *outFile = file;
+            return true;
+        }
     }
-    fchmod(fd, 0644);
-
-    FILE* file = fdopen(fd, "wb");
-    if (!file) {
-        close(fd);
-        remove(tempPath);
-        return false;
-    }
-
-    *outFile = file;
-    return true;
+    return false;
 }
 
 bool commitTempOutput(const char* tempPath, const char* outputPath)
@@ -42,6 +34,12 @@ bool commitTempOutput(const char* tempPath, const char* outputPath)
     if (rename(tempPath, outputPath) == 0) {
         return true;
     }
+#ifdef _WIN32
+    // rename в Windows не заменяет существующий файл, поэтому подмена здесь не атомарна
+    if (remove(outputPath) == 0 && rename(tempPath, outputPath) == 0) {
+        return true;
+    }
+#endif
     remove(tempPath);
     return false;
 }
