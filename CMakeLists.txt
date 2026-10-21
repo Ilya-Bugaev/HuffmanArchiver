@@ -8,6 +8,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 #Флаги компиляции
 add_compile_options(-Wall -Wextra -Wpedantic)
+set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
 
 #Санитайзеры (адреса, неопределённое поведение): cmake -B build -DENABLE_SANITIZERS=ON
 option(ENABLE_SANITIZERS "Собрать с AddressSanitizer и UndefinedBehaviorSanitizer" OFF)
@@ -26,8 +27,6 @@ add_library(huffman_lib
     src/tempOutput.c
 )
 target_include_directories(huffman_lib PUBLIC src)
-#mkstemp, fchmod и fdopen в tempOutput.c требуют POSIX 2008 при -std=c17
-target_compile_definitions(huffman_lib PRIVATE _POSIX_C_SOURCE=200809L)
 
 #Основное приложение
 add_executable(huffman src/main.c)

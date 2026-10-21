@@ -72,10 +72,10 @@
 <circle cx="749.6" cy="275.7" r="3.5" fill="#8c564b"/>
 <rect x="774" y="176" width="14" height="14" fill="#8c564b"/>
 <text x="796" y="188" font-family="DejaVu Sans, sans-serif" font-size="13">JPEG</text>
-<polyline fill="none" stroke="#e377c2" stroke-width="2" points="450.6,275.9 624.9,279.0 747.3,276.4"/>
-<circle cx="450.6" cy="275.9" r="3.5" fill="#e377c2"/>
+<polyline fill="none" stroke="#e377c2" stroke-width="2" points="450.6,276.0 624.9,279.0 747.2,276.4"/>
+<circle cx="450.6" cy="276.0" r="3.5" fill="#e377c2"/>
 <circle cx="624.9" cy="279.0" r="3.5" fill="#e377c2"/>
-<circle cx="747.3" cy="276.4" r="3.5" fill="#e377c2"/>
+<circle cx="747.2" cy="276.4" r="3.5" fill="#e377c2"/>
 <rect x="774" y="198" width="14" height="14" fill="#e377c2"/>
 <text x="796" y="210" font-family="DejaVu Sans, sans-serif" font-size="13">MP4</text>
 <polyline fill="none" stroke="#7f7f7f" stroke-width="2" points="84.3,212.4 263.8,268.2 443.2,274.3 624.6,274.9 750.0,275.0"/>
