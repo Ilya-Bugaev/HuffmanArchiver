@@ -29,3 +29,31 @@ jobs:
 
       - name: Run unit tests
         run: ctest --test-dir build --output-on-failure
+
+  sanitizers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake valgrind
+
+      - name: Configure with sanitizers
+        run: cmake -B build-san -DCMAKE_BUILD_TYPE=Debug -DENABLE_SANITIZERS=ON
+
+      - name: Build
+        run: cmake --build build-san -j"$(nproc)"
+
+      - name: Run unit tests under AddressSanitizer and UBSan
+        run: ctest --test-dir build-san --output-on-failure
+
+      - name: Configure for Valgrind
+        run: cmake -B build-vg -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build for Valgrind
+        run: cmake --build build-vg -j"$(nproc)"
+
+      - name: Run unit tests under Valgrind
+        run: ctest --test-dir build-vg --output-on-failure -T memcheck
