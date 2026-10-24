@@ -1,5 +1,5 @@
 #include "compress.h"
-#include "bitStream.h"
+#include "bitWriter.h"
 #include "huffmanTree.h"
 #include "tempOutput.h"
 
@@ -169,20 +169,20 @@ bool compressFile(const char* inputPath, const char* outputPath)
         success = false;
     }
 
-    BitWriter writer;
+    BitWriter* writer = NULL;
     if (success) {
-        bitWriterInit(&writer, outFile);
+        writer = bitWriterCreate(outFile);
 
-        if (!huffmanWriteTree(root, &writer)) {
+        if (!writer || !huffmanWriteTree(root, writer)) {
             success = false;
         }
     }
 
-    if (success && !encodeFile(inFile, codes, &writer)) {
+    if (success && !encodeFile(inFile, codes, writer)) {
         success = false;
     }
 
-    if (success && bitWriterFlush(&writer) != 0) {
+    if (success && bitWriterFlush(writer) != 0) {
         success = false;
     }
 
@@ -191,6 +191,7 @@ bool compressFile(const char* inputPath, const char* outputPath)
     }
     fclose(inFile);
 
+    bitWriterFree(writer);
     huffmanFreeCodeTable(codes);
     huffmanFreeTree(root);
 

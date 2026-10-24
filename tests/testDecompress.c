@@ -1,4 +1,4 @@
-#include "bitStream.h"
+#include "bitWriter.h"
 #include "compress.h"
 #include "decompress.h"
 
@@ -258,13 +258,14 @@ static void testLeafWithoutPayload(void)
         assert(fputc((int)((declaredSize >> (8 * i)) & 0xFFu), file) != EOF);
     }
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(bitWriterWriteBit(&writer, 1) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(bitWriterWriteBit(writer, 1) == 0);
     for (int i = 7; i >= 0; i--) {
-        assert(bitWriterWriteBit(&writer, ('A' >> i) & 1) == 0);
+        assert(bitWriterWriteBit(writer, ('A' >> i) & 1) == 0);
     }
-    assert(bitWriterFlush(&writer) == 0);
+    assert(bitWriterFlush(writer) == 0);
+    bitWriterFree(writer);
     assert(fclose(file) == 0);
 
     createFile(OUT_PATH, "precious", 8);

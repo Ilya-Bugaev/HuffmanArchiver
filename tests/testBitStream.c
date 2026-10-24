@@ -1,4 +1,5 @@
-#include "../src/bitStream.h"
+#include "bitReader.h"
+#include "bitWriter.h"
 #undef NDEBUG
 #include <assert.h>
 #include <stdio.h>
@@ -9,13 +10,14 @@ static FILE* writeBits(const int* bits, size_t count)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
     for (size_t i = 0; i < count; i++) {
-        assert(bitWriterWriteBit(&writer, bits[i]) == 0);
+        assert(bitWriterWriteBit(writer, bits[i]) == 0);
     }
-    assert(bitWriterFlush(&writer) == 0);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     rewind(file);
     return file;
 }
@@ -26,14 +28,15 @@ static void testWriteReadFullByte(void)
     int bits[] = { 1, 0, 1, 1, 0, 1, 0, 0 };
     FILE* file = writeBits(bits, 8);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
     for (int i = 0; i < 8; i++) {
-        assert(bitReaderReadBit(&reader) == bits[i]);
+        assert(bitReaderReadBit(reader) == bits[i]);
     }
     // После 8 битов должен быть конец файла
-    assert(bitReaderReadBit(&reader) == -1);
+    assert(bitReaderReadBit(reader) == -1);
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -43,18 +46,19 @@ static void testWriteReadPartialByte(void)
     int bits[] = { 1, 0, 1 };
     FILE* file = writeBits(bits, 3);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
     for (int i = 0; i < 3; i++) {
-        assert(bitReaderReadBit(&reader) == bits[i]);
+        assert(bitReaderReadBit(reader) == bits[i]);
     }
     // После значащих битов идут дополняющие нули
     for (int i = 0; i < 5; i++) {
-        assert(bitReaderReadBit(&reader) == 0);
+        assert(bitReaderReadBit(reader) == 0);
     }
     // После полного байта — конец файла
-    assert(bitReaderReadBit(&reader) == -1);
+    assert(bitReaderReadBit(reader) == -1);
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -64,12 +68,13 @@ static void testWriteReadMultipleBytes(void)
     int bits[] = { 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1 };
     FILE* file = writeBits(bits, 17);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
     for (int i = 0; i < 17; i++) {
-        assert(bitReaderReadBit(&reader) == bits[i]);
+        assert(bitReaderReadBit(reader) == bits[i]);
     }
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -79,10 +84,11 @@ static void testReadFromEmptyFile(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    assert(bitReaderReadBit(&reader) == -1);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    assert(bitReaderReadBit(reader) == -1);
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -93,13 +99,14 @@ static void testFileSizeAfterFlush(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
     for (int i = 0; i < 3; i++) {
-        assert(bitWriterWriteBit(&writer, bits[i]) == 0);
+        assert(bitWriterWriteBit(writer, bits[i]) == 0);
     }
-    assert(bitWriterFlush(&writer) == 0);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     assert(size == 1);
@@ -113,13 +120,14 @@ static void testFileSizeFullBytes(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
     for (int i = 0; i < 16; i++) {
-        assert(bitWriterWriteBit(&writer, i % 2) == 0);
+        assert(bitWriterWriteBit(writer, i % 2) == 0);
     }
-    assert(bitWriterFlush(&writer) == 0);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     assert(size == 2);
@@ -133,10 +141,11 @@ static void testFlushEmptyBuffer(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(bitWriterFlush(&writer) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     assert(size == 0);
@@ -150,13 +159,14 @@ static void testAlternatingBits(void)
     int bits[] = { 1, 0, 1, 0, 1, 0, 1, 0 };
     FILE* file = writeBits(bits, 8);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
     for (int i = 0; i < 8; i++) {
         int expected = (i % 2 == 0) ? 1 : 0;
-        assert(bitReaderReadBit(&reader) == expected);
+        assert(bitReaderReadBit(reader) == expected);
     }
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -165,20 +175,22 @@ static void testAllZerosAndAllOnes(void)
 {
     int zeros[8] = { 0 };
     FILE* file1 = writeBits(zeros, 8);
-    BitReader reader1;
-    bitReaderInit(&reader1, file1);
+    BitReader* reader1 = bitReaderCreate(file1);
+    assert(reader1 != NULL);
     for (int i = 0; i < 8; i++) {
-        assert(bitReaderReadBit(&reader1) == 0);
+        assert(bitReaderReadBit(reader1) == 0);
     }
+    bitReaderFree(reader1);
     fclose(file1);
 
     int ones[8] = { 1, 1, 1, 1, 1, 1, 1, 1 };
     FILE* file2 = writeBits(ones, 8);
-    BitReader reader2;
-    bitReaderInit(&reader2, file2);
+    BitReader* reader2 = bitReaderCreate(file2);
+    assert(reader2 != NULL);
     for (int i = 0; i < 8; i++) {
-        assert(bitReaderReadBit(&reader2) == 1);
+        assert(bitReaderReadBit(reader2) == 1);
     }
+    bitReaderFree(reader2);
     fclose(file2);
 }
 

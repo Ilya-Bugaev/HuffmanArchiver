@@ -1,10 +1,29 @@
-#include "bitStream.h"
+#include "bitWriter.h"
 
-void bitWriterInit(BitWriter* writer, FILE* file)
+#include <stdint.h>
+#include <stdlib.h>
+
+struct BitWriter {
+    FILE* file;
+    uint8_t buffer;
+    int bitCount;
+};
+
+BitWriter* bitWriterCreate(FILE* file)
 {
+    BitWriter* writer = malloc(sizeof(BitWriter));
+    if (!writer) {
+        return NULL;
+    }
     writer->file = file;
     writer->buffer = 0;
     writer->bitCount = 0;
+    return writer;
+}
+
+void bitWriterFree(BitWriter* writer)
+{
+    free(writer);
 }
 
 int bitWriterWriteBit(BitWriter* writer, int bit)
@@ -33,28 +52,4 @@ int bitWriterFlush(BitWriter* writer)
         writer->bitCount = 0;
     }
     return 0;
-}
-
-void bitReaderInit(BitReader* reader, FILE* file)
-{
-    reader->file = file;
-    reader->buffer = 0;
-    reader->bitCount = 0;
-}
-
-int bitReaderReadBit(BitReader* reader)
-{
-    if (reader->bitCount == 0) {
-        int byte = fgetc(reader->file);
-        if (byte == EOF) {
-            return -1;
-        }
-        reader->buffer = (uint8_t)byte;
-        reader->bitCount = 8;
-    }
-
-    int bit = (reader->buffer >> 7) & 1;
-    reader->buffer = (uint8_t)(reader->buffer << 1);
-    reader->bitCount--;
-    return bit;
 }

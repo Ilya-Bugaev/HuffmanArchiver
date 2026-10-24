@@ -21,7 +21,8 @@ endif()
 add_library(huffman_lib
     src/huffmanTree.c
     src/priorityQueue.c
-    src/bitStream.c
+    src/bitWriter.c
+    src/bitReader.c
     src/compress.c
     src/decompress.c
     src/tempOutput.c

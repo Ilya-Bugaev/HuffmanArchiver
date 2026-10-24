@@ -1,5 +1,5 @@
 #include "decompress.h"
-#include "bitStream.h"
+#include "bitReader.h"
 #include "huffmanTree.h"
 #include "tempOutput.h"
 #include <stdbool.h>
@@ -26,7 +26,7 @@ static bool readUint64(FILE* file, uint64_t* outValue)
 
 // Освобождает все ресурсы, удаляет недописанный выходной файл и возвращает false.
 // Вспомогательная функция для единообразной обработки ошибок.
-static bool fail(Node* root, uint8_t* buffer, FILE* inFile, FILE* outFile, const char* tempPath)
+static bool fail(Node* root, BitReader* reader, uint8_t* buffer, FILE* inFile, FILE* outFile, const char* tempPath)
 {
     if (buffer) {
         free(buffer);
@@ -34,6 +34,7 @@ static bool fail(Node* root, uint8_t* buffer, FILE* inFile, FILE* outFile, const
     if (root) {
         huffmanFreeTree(root);
     }
+    bitReaderFree(reader);
     if (inFile) {
         fclose(inFile);
     }
@@ -77,12 +78,14 @@ bool decompressFile(const char* inputPath, const char* outputPath)
         return commitTempOutput(tempPath, outputPath);
     }
 
-    BitReader reader;
-    bitReaderInit(&reader, inFile);
+    BitReader* reader = bitReaderCreate(inFile);
+    if (!reader) {
+        return fail(NULL, NULL, NULL, inFile, outFile, tempPath);
+    }
 
-    Node* root = huffmanReadTree(&reader);
+    Node* root = huffmanReadTree(reader);
     if (!root) {
-        return fail(NULL, NULL, inFile, outFile, tempPath);
+        return fail(NULL, reader, NULL, inFile, outFile, tempPath);
     }
 
     size_t bufferSize = DECOMPRESS_BUFFER_SIZE;
@@ -91,7 +94,7 @@ bool decompressFile(const char* inputPath, const char* outputPath)
     }
     uint8_t* buffer = malloc(bufferSize);
     if (!buffer) {
-        return fail(root, NULL, inFile, outFile, tempPath);
+        return fail(root, reader, NULL, inFile, outFile, tempPath);
     }
 
     Node* current = root;
@@ -99,13 +102,13 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
     for (uint64_t written = 0; written < originalSize; written++) {
         while (!isLeaf(current)) {
-            int bit = bitReaderReadBit(&reader);
+            int bit = bitReaderReadBit(reader);
             if (bit < 0) {
-                return fail(root, buffer, inFile, outFile, tempPath);
+                return fail(root, reader, buffer, inFile, outFile, tempPath);
             }
             current = (bit == 0) ? getLeft(current) : getRight(current);
             if (!current) {
-                return fail(root, buffer, inFile, outFile, tempPath);
+                return fail(root, reader, buffer, inFile, outFile, tempPath);
             }
         }
 
@@ -113,9 +116,9 @@ bool decompressFile(const char* inputPath, const char* outputPath)
         Без этой проверки огромный размер в коротком архиве заставил бы
         записать originalSize байт, не читая данные. */
         if (isLeaf(root)) {
-            int bit = bitReaderReadBit(&reader);
+            int bit = bitReaderReadBit(reader);
             if (bit != 0) {
-                return fail(root, buffer, inFile, outFile, tempPath);
+                return fail(root, reader, buffer, inFile, outFile, tempPath);
             }
         }
 
@@ -123,7 +126,7 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
         if (bufferPosition == bufferSize) {
             if (fwrite(buffer, 1, bufferPosition, outFile) != bufferPosition) {
-                return fail(root, buffer, inFile, outFile, tempPath);
+                return fail(root, reader, buffer, inFile, outFile, tempPath);
             }
             bufferPosition = 0;
         }
@@ -133,12 +136,13 @@ bool decompressFile(const char* inputPath, const char* outputPath)
 
     if (bufferPosition > 0) {
         if (fwrite(buffer, 1, bufferPosition, outFile) != bufferPosition) {
-            return fail(root, buffer, inFile, outFile, tempPath);
+            return fail(root, reader, buffer, inFile, outFile, tempPath);
         }
     }
 
     free(buffer);
     huffmanFreeTree(root);
+    bitReaderFree(reader);
     fclose(inFile);
     if (fclose(outFile) != 0) {
         discardTempOutput(tempPath);

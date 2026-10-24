@@ -1,4 +1,3 @@
-#include "bitStream.h"
 #include "huffmanTree.h"
 
 #undef NDEBUG
@@ -321,13 +320,14 @@ static void testWriteTreeNull(void)
 
     FILE* file = tmpfile();
     assert(file != NULL);
-    BitWriter writer;
-    bitWriterInit(&writer, file);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
 
-    assert(huffmanWriteTree(NULL, &writer) == false);
+    assert(huffmanWriteTree(NULL, writer) == false);
     assert(huffmanWriteTree(leaf, NULL) == false);
 
     freeNode(leaf);
+    bitWriterFree(writer);
     fclose(file);
 }
 
@@ -341,11 +341,12 @@ static void testReadTreeFromEmptyStream(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    Node* restored = huffmanReadTree(&reader);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    Node* restored = huffmanReadTree(reader);
     assert(restored == NULL);
 
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -357,22 +358,24 @@ static void testSerializeSingleLeaf(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(huffmanWriteTree(leaf, &writer) == true);
-    assert(bitWriterFlush(&writer) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(huffmanWriteTree(leaf, writer) == true);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     rewind(file);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    Node* restored = huffmanReadTree(&reader);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    Node* restored = huffmanReadTree(reader);
     assert(restored != NULL);
     assert(isLeaf(restored) == true);
     assert(getSymbol(restored) == 'A');
 
     freeNode(leaf);
     freeNode(restored);
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -384,16 +387,17 @@ static void testSerializeClassicExample(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(huffmanWriteTree(root, &writer) == true);
-    assert(bitWriterFlush(&writer) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(huffmanWriteTree(root, writer) == true);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     rewind(file);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    Node* restored = huffmanReadTree(&reader);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    Node* restored = huffmanReadTree(reader);
     assert(restored != NULL);
 
     // Структура восстановленного дерева должна совпадать с исходным
@@ -401,6 +405,7 @@ static void testSerializeClassicExample(void)
 
     huffmanFreeTree(root);
     huffmanFreeTree(restored);
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -414,16 +419,17 @@ static void testSerializeDeserializeCodes(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(huffmanWriteTree(root, &writer) == true);
-    assert(bitWriterFlush(&writer) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(huffmanWriteTree(root, writer) == true);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     rewind(file);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    Node* restored = huffmanReadTree(&reader);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    Node* restored = huffmanReadTree(reader);
     assert(restored != NULL);
 
     CodeTable* originalTable = huffmanBuildCodeTable(root);
@@ -440,6 +446,7 @@ static void testSerializeDeserializeCodes(void)
     huffmanFreeCodeTable(restoredTable);
     huffmanFreeTree(root);
     huffmanFreeTree(restored);
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -459,21 +466,23 @@ static void testSerializeAllByteValues(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
-    assert(huffmanWriteTree(root, &writer) == true);
-    assert(bitWriterFlush(&writer) == 0);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
+    assert(huffmanWriteTree(root, writer) == true);
+    assert(bitWriterFlush(writer) == 0);
 
+    bitWriterFree(writer);
     rewind(file);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    Node* restored = huffmanReadTree(&reader);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    Node* restored = huffmanReadTree(reader);
     assert(restored != NULL);
     assert(treesEqual(root, restored));
 
     huffmanFreeTree(root);
     huffmanFreeTree(restored);
+    bitReaderFree(reader);
     fclose(file);
 }
 
@@ -483,17 +492,19 @@ static void testReadTreeTooDeep(void)
     FILE* file = tmpfile();
     assert(file != NULL);
 
-    BitWriter writer;
-    bitWriterInit(&writer, file);
+    BitWriter* writer = bitWriterCreate(file);
+    assert(writer != NULL);
     for (int i = 0; i < 300; i++) {
-        assert(bitWriterWriteBit(&writer, 0) == 0);
+        assert(bitWriterWriteBit(writer, 0) == 0);
     }
-    assert(bitWriterFlush(&writer) == 0);
+    assert(bitWriterFlush(writer) == 0);
+    bitWriterFree(writer);
     assert(fseek(file, 0, SEEK_SET) == 0);
 
-    BitReader reader;
-    bitReaderInit(&reader, file);
-    assert(huffmanReadTree(&reader) == NULL);
+    BitReader* reader = bitReaderCreate(file);
+    assert(reader != NULL);
+    assert(huffmanReadTree(reader) == NULL);
+    bitReaderFree(reader);
     fclose(file);
 }
 

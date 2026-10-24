@@ -1,6 +1,7 @@
 #pragma once
 
-#include "bitStream.h"
+#include "bitReader.h"
+#include "bitWriter.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -17,10 +18,7 @@ typedef struct CodeTable CodeTable;
 // Создаёт лист для символа symbol с частотой frequency. NULL при ошибке malloc.
 Node* createLeaf(uint8_t symbol, size_t frequency);
 
-/* Создаёт внутренний узел, объединяющий left и right; частота = сумма частот
-потомков. NULL при ошибке malloc, переполнении суммы частот или если left/right
-равны NULL (left и right в этом случае не освобождаются - вызывающий код
-отвечает за них сам). */
+// Создаёт внутренний узел с потомками left и right. NULL при ошибке; потомки при этом не освобождаются.
 Node* createInternal(Node* left, Node* right);
 
 // Рекурсивно освобождает узел и всех его потомков. NULL-указатель безопасен.
